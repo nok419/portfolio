@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  python:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: "arc-test"
+    working_dir: "/root/src"
+    tty: true
+    volumes:
+      - ./python:/root/src
+    ports:
+      - "5000:5000"
+    
+    #links:
+    #  - db 
+    #networks:
+     # - python_network
