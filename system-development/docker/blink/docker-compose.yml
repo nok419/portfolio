@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  python:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    working_dir: "/workspace"
+    tty: true
+    shm_size: '32gb'  # 共有メモリサイズ: 大規模なデータセットを扱う場合に必要
+    volumes:
+      - ./python:/workspace/src # ソースコード:
+      - ./data:/workspace/data # データセット: 学習データや評価データの格納
+      - ./models:/workspace/models #モデル: 学習済みモデル,チェックポイントやファインチューニング済みモデルの保存
+      - ./logs:/workspace/logs # ログ: 実験結果やトレーニングログの保存用
+      - ./scripts:/workspace/scripts # スクリプト: 実験用スクリプトやツール
+      # Git設定（オプション）: ローカルのGit設定を共有
+      # - ./git:/root/.git:ro
+      # カスタム設定（必要に応じて）
+      # - ./configs:/workspace/configs  # 設定ファイル
+      # - ./results:/workspace/results  # 実験結果
+      # - ./tmp:/workspace/tmp  # 一時ファイル
+    
+    ports:
+      - "6006:6006"  # TensorBoard
+      - "5000:5000"  # FastAPI
+      - "8501:8501"  # Streamlit
+      - "4040:4040"  # MLflow
+    
+    environment:
+      - PYTHONPATH=/workspace/src:${PYTHONPATH}  # Pythonパスの設定
+      - NVIDIA_VISIBLE_DEVICES=all  # 全GPUを利用可能に
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility  # nvidia-container-toolkitの機能設定
+    
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+        limits:
+          memory: 48G  # メモリ制限:
+          #cpus: '8.0'  # CPU制限:
+    
+    restart: "no"  # コンテナの自動再起動を無効化
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16  # コンテナネットワークのサブネット設定

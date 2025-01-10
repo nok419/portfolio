@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  python:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: "simple-sci"
+    working_dir: "/workspace"
+    tty: true
+    volumes:
+      - ./src:/workspace/src
+      - ./data:/workspace/data
+      - ./notebooks:/workspace/notebooks
+      - ./config:/workspace/config
+    
+    ports:
+      - "8888:8888"  # Jupyter
+    
+    environment:
+      - PYTHONPATH=/workspace/src:${PYTHONPATH}
+      - NVIDIA_VISIBLE_DEVICES=all
+      # Jupyter specific settings
+      - JUPYTER_TOKEN="your_token"  # Jupyterへのアクセストークン
+      - JUPYTER_ALLOW_REMOTE_ACCESS=1
+    
+    # Jupyter起動コマンド
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token="your_token"
+    
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+        limits:
+          memory: 48G
+    
+    restart: "no"
+
+networks:
+  default:
+    driver: bridge
