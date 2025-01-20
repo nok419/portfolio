@@ -57,4 +57,4 @@
 - GitHub: [Portfolio Repository](https://github.com/nok419/portfolio)
 - Google Drive: [Extended Materials](https://drive.google.com/drive/folders/1aFwEoWDtXOR_ocvu0gXuoO7L3hxTgSdE?usp=sharing)
 
-本ポートフォリオは継続的に更新されており、新しい実績や公開可能となった情報は随時追加されます。
+本ポートフォリオは継続的に更新されています。新しい実績や公開可能となった情報は随時追加されます。
