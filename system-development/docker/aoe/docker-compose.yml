@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  python:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: "blink"
+    working_dir: "/workspace"
+    tty: true
+    shm_size: '32gb'
+    volumes:
+      - ./python:/workspace/src
+      - ./data:/workspace/data
+      - ./models:/workspace/models
+      - ./logs:/workspace/logs
+      - ./scripts:/workspace/scripts
+    
+    ports:
+      - "6006:6006"  # TensorBoardX
+      - "5000:5000"  # FastAPI
+      - "8501:8501"  # Streamlit
+      - "29500:29500"  # DeepSpeed
+    
+    environment:
+      - PYTHONPATH=/workspace/src:${PYTHONPATH}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+        limits:
+          memory: 48G
+    
+    restart: "no"
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
